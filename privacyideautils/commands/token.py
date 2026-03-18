@@ -352,13 +352,19 @@ def registration(ctx, realm, dump, mail_host, mail_from, mail_subject,
                    "only programmable with this new access key. "
                    "You can reset the access key by setting the "
                    "new access key to '000000000000'.")
+@click.option("--count",
+            help="Number of YubiKeys to initialize before exiting. "
+                "0 means unlimited.",
+            type=int,
+            default=0)
 def yubikey_mass_enroll(ctx, yubiprefix, yubiprefixrandom, yubiprefixserial,
-                        yubimode, filename, yubislot, yubicr, description, access, newaccess, realm):
+                    yubimode, filename, yubislot, yubicr, description, access, newaccess, realm, count):
     """
     Initialize a bunch of yubikeys
     """
     client = ctx.obj["pi_client"]
     yp = YubikeyPlug()
+    processed = 0
     while True:
         print("\nPlease insert the next yubikey.", end=' ')
         sys.stdout.flush()
@@ -432,6 +438,10 @@ def yubikey_mass_enroll(ctx, yubiprefix, yubiprefixrandom, yubiprefixserial,
             resp = client.inittoken(submit_param)
             print(resp.status)
             showresult(resp.data)
+
+        processed += 1
+        if count > 0 and processed >= count:
+            break
 
 
 @token.command()

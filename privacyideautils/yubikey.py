@@ -65,6 +65,21 @@ def to_bytes(s):
     return s
 
 
+def normalize_yubikey_access_key(key):
+    """Return access key as bytes with required b'h:' prefix."""
+    if key is None:
+        return None
+
+    key_b = to_bytes(key).strip()
+    if not key_b:
+        return None
+
+    if key_b.startswith(b"h:"):
+        return key_b
+
+    return b"h:" + key_b
+
+
 def modhex_encode(s):
     s = to_bytes(s)
     return binascii.hexlify(s).translate(t_map)
@@ -143,13 +158,14 @@ def enrollYubikey(digits=6, APPEND_CR=True, debug=False, access_key=None,
 
     # handle access_key and new_access_key
     if access_key:
-        access_key = access_key if access_key[1:] == "h:" else "h:"+access_key
-        Cfg.unlock_key(access_key)
+        access_key = normalize_yubikey_access_key(access_key)
+        if access_key:
+            Cfg.unlock_key(access_key)
     if new_access_key:
         # set new accesskey
-        new_access_key = new_access_key if new_access_key[1:] == "h:" else \
-            "h:" + new_access_key
-        Cfg.access_key(new_access_key)
+        new_access_key = normalize_yubikey_access_key(new_access_key)
+        if new_access_key:
+            Cfg.access_key(new_access_key)
 
     # default fixed string length is 0, but 6 for MODE_YUBICO
     if len_fixed_string is None:

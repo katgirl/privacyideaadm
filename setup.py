@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from setuptools import setup
-from setuptools.command.install import install
 import os
 import sys
 
@@ -11,15 +10,6 @@ release = '3.0'
 
 # Taken from kennethreitz/requests/setup.py
 package_directory = os.path.realpath(os.path.dirname(__file__))
-
-
-class InstallWithDoc(install):
-    def run(self):
-        self.run_command('build_sphinx')
-        install.run(self)
-
-
-cmdclass = {'install': InstallWithDoc}
 
 
 def get_file_contents(file_path):
@@ -41,8 +31,6 @@ setup(name=name,
       url='http://www.privacyidea.org',
       packages=['privacyideautils',
                 'privacyideautils.commands'],
-      setup_requires=['sphinx <= 1.8.5;python_version<"3.0"',
-                      'sphinx >= 2.0;python_version>="3.0"'],
       install_requires=[
           "cffi",
           "click",
@@ -52,16 +40,6 @@ setup(name=name,
           "requests",
           "six"
       ],
-      cmdclass=cmdclass,
-      command_options={
-        'build_sphinx': {
-            'project': ('setup.py', name),
-            'version': ('setup.py', version),
-            'source_dir': ('setup.py', 'doc'),
-            'build_dir': ('setup.py', os.path.join('doc', '_build')),
-            'builder': ('setup.py', 'man')
-        }
-      },
       scripts=['scripts/privacyidea',
                'scripts/privacyidea-luks-assign',
                'scripts/privacyidea-authorizedkeys',
@@ -69,7 +47,6 @@ setup(name=name,
                'scripts/privacyidea-get-offline-otp',
                'scripts/privacyidea-validate',
                'scripts/privacyidea-enroll-yubikey-piv'],
-      data_files=[('share/man/man1', ["doc/_build/man/privacyidea.1"])],
       license='AGPLv3',
       long_description=get_file_contents('DESCRIPTION')
       )
